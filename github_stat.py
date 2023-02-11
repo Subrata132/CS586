@@ -50,7 +50,6 @@ class GitStats:
 
     def plot_result(self):
         json_files = sorted(os.listdir(self.save_dir))
-        print(json_files)
         fig = plt.figure(figsize=(5, 5))
         all_data = []
         label = []
