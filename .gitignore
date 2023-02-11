@@ -11,6 +11,7 @@ venv/
 .vscode/
 .idea/
 __pycache__/
+saved_json/
 
 
 # Executables
