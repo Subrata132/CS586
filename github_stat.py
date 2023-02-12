@@ -10,12 +10,16 @@ random.seed(42)
 
 
 class GitStats:
-    def __init__(self, bin_size, credentials, max_github_id=123594509):
+    def __init__(self, bin_size, credentials, max_github_id, max_validation_id, val_step=1000):
         self.bin_size = bin_size
         self.credentials = credentials
         self.max_github_id = max_github_id
+        self.max_validation_id = max_validation_id
+        self.val_step = val_step
         self.all_bins = list(range(0, self.max_github_id, self.bin_size))
         self.save_dir = "./saved_json/"
+        self.active_percentage = None
+        self.active_std = None
 
     def crawl_data(self, select_bin):
         selected_bins = random.sample(self.all_bins, select_bin)
@@ -46,7 +50,34 @@ class GitStats:
                 active_pcts = active_pcts + value
         mean = np.mean(active_pcts)
         std = np.std(active_pcts)
+        self.active_percentage = mean
+        self.active_std = std
         print(f'# Active Github users: {int(mean*self.max_github_id)} with standard deviation of {round(std, 4)}')
+
+    def validate_result(self, fold=5):
+        active_pcts = []
+        for _ in tqdm(range(fold)):
+            current_id = random.randint(self.max_github_id+1, self.max_validation_id)
+            end_ = current_id + self.val_step
+            in_active_count = 0
+            while current_id <= end_:
+                response = requests.get(
+                    'https://api.github.com/users?since=' + str(current_id),
+                    headers=self.credentials
+                )
+                data = response.json()
+                in_active_count += ((data[-1]["id"]) - current_id - len(data))
+                current_id = data[-1]["id"]
+            active_pcts.append(1 - in_active_count/self.val_step)
+        ticks = list(range(1, len(active_pcts) + 1))
+        plt.figure()
+        plt.axhline(y=self.active_percentage, color='green', linewidth=2, label='Predicted active percentage')
+        plt.plot(ticks, active_pcts, color='blue', linestyle='--', label='Actual active percentage')
+        plt.xticks(ticks)
+        plt.xlim(ticks[0], ticks[-1])
+        plt.ylim(np.min(active_pcts) - 0.05, 1)
+        plt.grid()
+        plt.legend(loc='best')
 
     def plot_result(self):
         json_files = sorted(os.listdir(self.save_dir))
@@ -64,19 +95,27 @@ class GitStats:
             label.append(json_file.split(".")[0].split("_")[-1])
         plt.boxplot(all_data, patch_artist=True, labels=label)
         plt.grid()
-        plt.show()
 
 
 def main():
-    token = "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"
+    token = ""  # Add token here
     headers = {
         'Authorization': f'token {token}'
     }
-    git_stat = GitStats(bin_size=1000, credentials=headers)
+    max_github_id = 63048878  # Till 2020-31-12
+    max_validation_id = 123594509  # Till 2023-25-01
+    git_stat = GitStats(
+        bin_size=1000,
+        credentials=headers,
+        max_github_id=max_github_id,
+        max_validation_id=max_validation_id
+    )
     # for select_bin in range(10, 51, 10):
     #     git_stat.crawl_data(select_bin=select_bin)
     git_stat.estimate_active_account()
     git_stat.plot_result()
+    git_stat.validate_result()
+    plt.show()
 
 
 if __name__ == '__main__':

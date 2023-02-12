@@ -12,6 +12,7 @@ venv/
 .idea/
 __pycache__/
 saved_json/
+saved_figure/
 
 
 # Executables
