@@ -110,8 +110,8 @@ def main():
         max_github_id=max_github_id,
         max_validation_id=max_validation_id
     )
-    # for select_bin in range(10, 51, 10):
-    #     git_stat.crawl_data(select_bin=select_bin)
+    for select_bin in range(10, 51, 10):
+        git_stat.crawl_data(select_bin=select_bin)
     git_stat.estimate_active_account()
     git_stat.plot_result()
     git_stat.validate_result()
