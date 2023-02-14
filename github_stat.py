@@ -123,7 +123,7 @@ def main():
         git_stat.crawl_data(select_bin=select_bin)
     git_stat.estimate_active_account()
     git_stat.plot_result()
-    # git_stat.validate_result()
+    git_stat.validate_result()
     plt.show()
 
 
