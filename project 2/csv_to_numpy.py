@@ -19,8 +19,8 @@ class LatLong2Grid:
         self.max_grid_long = 48
         self.max_grid_lat = 18
         self.plates = [0, 1, 2, 3, 4]
-        self.data_dir = "./data/data_5drivers"
-        self.save_dir = "./data/project_2/"
+        self.data_dir = "../data/data_5drivers"
+        self.save_dir = "../data/project_2/"
         create_folder(self.save_dir)
 
     def process_df(self, df):

@@ -8,7 +8,7 @@ class CustomDataloader(Dataset):
     def __init__(
             self,
             filenames,
-            data_dir="./data/project_2"
+            data_dir="../data/project_2"
     ):
         self.data_dir = data_dir
         self.filenames = filenames
@@ -19,7 +19,9 @@ class CustomDataloader(Dataset):
 
     def __getitem__(self, idx):
         filename = self.filenames[idx]
-        x = np.load(os.path.join(self.data_dir, filename))
+        x = np.load(os.path.join(self.data_dir, filename))[0]
+        x = x.astype('float32')
+        x = x.reshape((1, x.shape[0], x.shape[1]))
         y = int(filename.split("_")[3])
         return x, y
 
@@ -38,7 +40,7 @@ class LoadData:
 
 
 def main():
-    all_filenames = os.listdir("./data/project_2")
+    all_filenames = os.listdir("../data/project_2")
     random.shuffle(all_filenames)
     train_split = int(0.7*len(all_filenames))
     val_split = int(0.8*len(all_filenames))
